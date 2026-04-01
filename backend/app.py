@@ -1,10 +1,11 @@
 """
 AmbuSync API + Socket.IO server (Render-ready)
 """
+from __future__ import annotations
 import eventlet
 eventlet.monkey_patch()
 
-from __future__ import annotations
+
 import logging
 import os
 import re

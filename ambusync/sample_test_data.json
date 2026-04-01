@@ -1,0 +1,77 @@
+{
+  "description": "Example API bodies for AmbuSync (curl / Postman)",
+  "post_emergency_request": {
+    "latitude": 22.5726,
+    "longitude": 88.3639,
+    "brief_symptoms": "Severe shortness of breath and chest tightness",
+    "address_hint": "Near Park Street",
+    "patient_name": "Optional caller name",
+    "preferred_hospital_id": "GH-GENERAL-01"
+  },
+  "post_accept_request": "POST /api/emergency-requests/1/accept  body: {\"ambulance_id\": \"AMB-ALS-01\"}",
+  "post_triage_submit": {
+    "request_id": 1,
+    "ambulance_id": "AMB-ALS-01",
+    "patient_name": "Demo Patient",
+    "age": 55,
+    "sex": "male",
+    "symptoms": "Progressive shortness of breath over 2 hours",
+    "bp_systolic": 142,
+    "bp_diastolic": 88,
+    "pulse": 102,
+    "spo2": 91,
+    "consciousness": "Alert",
+    "address_hint": "Scene update",
+    "preferred_hospital_id": ""
+  },
+  "examples": [
+    {
+      "label": "Stable - minor complaint",
+      "body": {
+        "patient_name": "Priya Sharma",
+        "age": 28,
+        "sex": "female",
+        "symptoms": "Mild headache since morning, no fever, no neuro deficits",
+        "bp_systolic": 118,
+        "bp_diastolic": 76,
+        "pulse": 78,
+        "spo2": 98,
+        "consciousness": "Alert",
+        "address_hint": "Near City Mall"
+      }
+    },
+    {
+      "label": "Moderate - shortness of breath",
+      "body": {
+        "patient_name": "Robert Chen",
+        "age": 62,
+        "sex": "male",
+        "symptoms": "Progressive shortness of breath over 2 hours, mild chest tightness",
+        "bp_systolic": 148,
+        "bp_diastolic": 92,
+        "pulse": 108,
+        "spo2": 92,
+        "consciousness": "Alert",
+        "latitude": 22.5726,
+        "longitude": 88.3639
+      }
+    },
+    {
+      "label": "Critical - chest pain + hypotension",
+      "body": {
+        "patient_name": "Maria Lopez",
+        "age": 54,
+        "sex": "female",
+        "symptoms": "Sudden crushing chest pain radiating to left arm, diaphoresis",
+        "bp_systolic": 78,
+        "bp_diastolic": 48,
+        "pulse": 132,
+        "spo2": 88,
+        "consciousness": "Verbal",
+        "latitude": 22.58,
+        "longitude": 88.36,
+        "address_hint": "Ring Road junction"
+      }
+    }
+  ]
+}

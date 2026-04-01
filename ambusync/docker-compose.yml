@@ -1,0 +1,12 @@
+# Local MongoDB for AmbuSync (optional; use Atlas by setting MONGO_URI instead)
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - ambusync_mongo_data:/data/db
+
+volumes:
+  ambusync_mongo_data:

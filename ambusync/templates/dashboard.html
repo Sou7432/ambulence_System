@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}AmbuSync — Hospital{% endblock %}
+{% block body_class %}page-dashboard{% endblock %}
+{% block body %}
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">🏥</span>
+    <div>
+      <h1>Hospital Command</h1>
+      <p class="tagline">Notifications after routing</p>
+    </div>
+  </div>
+  <div class="live-indicator" id="live-dot">
+    <span class="pulse"></span>
+    <span id="conn-status">Connecting…</span>
+  </div>
+  <nav class="nav-links">
+    <a href="/">Request</a>
+    <a href="/ambulance">Ambulance</a>
+    <a href="/dashboard" class="active">Hospital</a>
+  </nav>
+</header>
+
+<main class="shell dashboard-shell">
+  <section class="panel">
+    <h2>Incoming triage handoffs</h2>
+    <p class="lede">Events are sent after crew completes triage and a hospital is selected (urgency + distance + specialization).</p>
+  </section>
+
+  <div id="case-list" class="case-list" aria-live="polite"></div>
+  <template id="card-template">
+    <article class="case-card">
+      <header class="case-card-head">
+        <h3 class="case-name"></h3>
+        <span class="case-time"></span>
+      </header>
+      <div class="case-urgency"></div>
+      <p class="case-routing"></p>
+      <p class="case-summary"></p>
+      <dl class="vitals-grid">
+        <div><dt>Request</dt><dd class="v-req"></dd></div>
+        <div><dt>Ambulance</dt><dd class="v-amb"></dd></div>
+        <div><dt>Hospital</dt><dd class="v-hosp"></dd></div>
+        <div><dt>Age</dt><dd class="v-age"></dd></div>
+        <div><dt>BP</dt><dd class="v-bp"></dd></div>
+        <div><dt>Pulse</dt><dd class="v-pulse"></dd></div>
+        <div><dt>SpO₂</dt><dd class="v-spo2"></dd></div>
+        <div><dt>AVPU</dt><dd class="v-con"></dd></div>
+        <div><dt>Symptoms</dt><dd class="v-sym"></dd></div>
+      </dl>
+      <div class="case-loc hidden">
+        <a class="map-link" target="_blank" rel="noopener">Open in Maps</a>
+      </div>
+    </article>
+  </template>
+
+  <p id="empty-msg" class="empty-msg">Waiting for <code>hospital_notified</code> events…</p>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

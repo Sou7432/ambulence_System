@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}AmbuSync — Request Ambulance{% endblock %}
+{% block body_class %}page-patient{% endblock %}
+{% block body %}
+<div id="ambusync-boot" hidden data-maps-key="{{ maps_key|default('', true)|e }}"></div>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">📍</span>
+    <div>
+      <h1>Request Ambulance</h1>
+      <p class="tagline">Patient — emergency request</p>
+    </div>
+  </div>
+  <nav class="nav-links">
+    <a href="/" class="active">Request</a>
+    <a href="/ambulance">Ambulance</a>
+    <a href="/dashboard" target="_blank" rel="noopener">Hospital</a>
+  </nav>
+</header>
+
+<main class="shell">
+  <section class="panel hero-panel">
+    <h2>Emergency request</h2>
+    <p class="lede">Share what is happening and your location. An available ambulance crew will accept the call, then complete full triage before a hospital is notified.</p>
+  </section>
+
+  <form id="request-form" class="panel form-panel">
+    <label class="field">
+      <span>What is the emergency? (brief)</span>
+      <textarea name="brief_symptoms" rows="3" required placeholder="e.g. severe chest pain, trouble breathing"></textarea>
+    </label>
+    <div class="grid two">
+      <label class="field">
+        <span>Your name (optional)</span>
+        <input type="text" name="patient_name" autocomplete="name" placeholder="For crew callback" />
+      </label>
+      <label class="field">
+        <span>Preferred hospital (optional)</span>
+        <select name="preferred_hospital_id" id="preferred-hospital">
+          <option value="">Auto-select by urgency &amp; distance</option>
+        </select>
+      </label>
+    </div>
+    <label class="field">
+      <span>Location hint (optional)</span>
+      <input type="text" name="address_hint" placeholder="Building, landmark, area" />
+    </label>
+
+    <input type="hidden" name="latitude" id="latitude" required />
+    <input type="hidden" name="longitude" id="longitude" required />
+
+    <section class="map-panel">
+      <div class="map-head">
+        <h3>GPS location</h3>
+        <button type="button" id="btn-locate" class="btn btn-secondary">Use my location</button>
+      </div>
+      <div id="map" class="map-canvas" aria-label="Map for pickup location"></div>
+      <p id="map-status" class="hint">Location is required for routing.</p>
+    </section>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-primary" id="btn-submit">Send emergency request</button>
+      <span id="submit-status" class="status" aria-live="polite"></span>
+    </div>
+  </form>
+
+  <section id="done-panel" class="panel result-panel hidden">
+    <h3>Request sent</h3>
+    <p id="done-text" class="result-text"></p>
+    <p class="hint">Stay safe. Help is being dispatched.</p>
+  </section>
+</main>
+
+<footer class="footer">
+  <span>AmbuSync — demo · Not a medical device</span>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/patient_request.js') }}"></script>
+{% if maps_key %}
+<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ maps_key }}&callback=ambusyncPatientInitMap"></script>
+{% endif %}
+{% endblock %}

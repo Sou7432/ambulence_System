@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}AmbuSync — Ambulance Crew{% endblock %}
+{% block body_class %}page-ambulance{% endblock %}
+{% block body %}
+<div id="ambusync-boot" hidden data-maps-key="{{ maps_key|default('', true)|e }}"></div>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">🚑</span>
+    <div>
+      <h1>AmbuSync</h1>
+      <p class="tagline">Crew — accept requests, then triage</p>
+    </div>
+  </div>
+  <nav class="nav-links">
+    <a href="/">Request</a>
+    <a href="/ambulance" class="active">Ambulance</a>
+    <a href="/dashboard" target="_blank" rel="noopener">Hospital</a>
+  </nav>
+</header>
+
+<main class="shell">
+  <section class="panel hero-panel">
+    <h2>Ambulance operations</h2>
+    <p class="lede">Incoming emergency requests appear below. Accept a call first, then complete vitals and handoff. AI summary and hospital routing run only after acceptance.</p>
+  </section>
+
+  <section class="panel">
+    <h3 class="section-title">Your unit</h3>
+    <div class="grid two crew-row">
+      <label class="field">
+        <span>Ambulance ID</span>
+        <select id="ambulance-select" required>
+          <option value="">Select unit…</option>
+        </select>
+      </label>
+      <div class="crew-meta" id="crew-meta">
+        <p><strong>Type:</strong> <span id="crew-type">—</span></p>
+        <p><strong>Status:</strong> <span id="crew-status">—</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h3 class="section-title">Incoming emergency requests</h3>
+    <p class="hint">Live updates from patients who requested an ambulance.</p>
+    <div id="request-queue" class="request-queue" aria-live="polite"></div>
+    <p id="queue-empty" class="empty-msg subtle">No pending requests. Waiting…</p>
+  </section>
+
+  <form id="triage-form" class="panel form-panel is-locked">
+    <h3 class="section-title">Patient triage (after accept)</h3>
+    <p id="triage-lock-msg" class="hint lock-banner">Select your unit and accept a request to unlock this form.</p>
+
+    <input type="hidden" name="request_id" id="field-request-id" />
+    <input type="hidden" name="ambulance_id" id="field-ambulance-id" />
+
+    <div class="grid two">
+      <label class="field">
+        <span>Patient name</span>
+        <input type="text" name="patient_name" required autocomplete="name" placeholder="Full name" disabled />
+      </label>
+      <label class="field">
+        <span>Age</span>
+        <input type="number" name="age" required min="0" max="130" placeholder="Years" disabled />
+      </label>
+    </div>
+
+    <div class="grid two">
+      <label class="field">
+        <span>Sex (optional)</span>
+        <select name="sex" disabled>
+          <option value="">Prefer not to say</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Consciousness</span>
+        <select name="consciousness" required disabled>
+          <option value="Alert">Alert</option>
+          <option value="Verbal">Responds to verbal</option>
+          <option value="Pain">Responds to pain</option>
+          <option value="Unresponsive">Unresponsive</option>
+        </select>
+      </label>
+    </div>
+
+    <label class="field">
+      <span>Symptoms / chief complaint</span>
+      <div class="symptom-row">
+        <textarea name="symptoms" rows="4" required placeholder="Detailed clinical picture" disabled></textarea>
+        <button type="button" id="btn-voice" class="btn btn-voice" title="Speech recognition" disabled>
+          🎤 Voice
+        </button>
+      </div>
+      <small id="voice-status" class="hint"></small>
+    </label>
+
+    <div class="grid three">
+      <label class="field">
+        <span>BP systolic</span>
+        <input type="number" name="bp_systolic" required min="40" max="300" placeholder="120" disabled />
+      </label>
+      <label class="field">
+        <span>BP diastolic</span>
+        <input type="number" name="bp_diastolic" required min="20" max="200" placeholder="80" disabled />
+      </label>
+      <label class="field">
+        <span>Pulse (bpm)</span>
+        <input type="number" name="pulse" required min="20" max="250" placeholder="72" disabled />
+      </label>
+    </div>
+
+    <div class="grid two">
+      <label class="field">
+        <span>SpO₂ (%)</span>
+        <input type="number" name="spo2" required min="50" max="100" placeholder="98" disabled />
+      </label>
+      <label class="field">
+        <span>Preferred hospital override</span>
+        <select name="preferred_hospital_id" id="crew-preferred-hospital" disabled>
+          <option value="">Use patient auto-selection</option>
+        </select>
+      </label>
+    </div>
+
+    <label class="field">
+      <span>Scene / handoff note (optional)</span>
+      <input type="text" name="address_hint" placeholder="Updates vs. original request" disabled />
+    </label>
+
+    <input type="hidden" name="latitude" id="latitude" />
+    <input type="hidden" name="longitude" id="longitude" />
+
+    <section class="map-panel">
+      <div class="map-head">
+        <h3>Current scene (optional)</h3>
+        <button type="button" id="btn-locate" class="btn btn-secondary" disabled>Use my location</button>
+      </div>
+      <div id="map" class="map-canvas" role="region" aria-label="Ambulance scene map"></div>
+      <p id="map-status" class="hint"></p>
+    </section>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-primary" id="btn-submit" disabled>Complete triage &amp; notify hospital</button>
+      <span id="submit-status" class="status" aria-live="polite"></span>
+    </div>
+  </form>
+
+  <section id="result-panel" class="panel result-panel hidden">
+    <h3>AI summary</h3>
+    <p id="result-summary" class="result-text"></p>
+    <div id="result-urgency" class="urgency-pill"></div>
+    <p id="result-hospital" class="result-hospital"></p>
+  </section>
+</main>
+
+<footer class="footer">
+  <span>AmbuSync — demo for emergency workflows · Not a medical device</span>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename='js/ambulance.js') }}"></script>
+{% if maps_key %}
+<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ maps_key }}&callback=ambusyncInitMap"></script>
+{% endif %}
+{% endblock %}

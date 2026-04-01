@@ -1,6 +1,8 @@
 """
 AmbuSync API + Socket.IO server (Render-ready)
 """
+import eventlet
+eventlet.monkey_patch()
 
 from __future__ import annotations
 
